@@ -24,15 +24,23 @@ jobs:
         profile: minimal
         override: true
 
-    - name: Read repository list
-      id: read-repos
+    - name: Read repository list (Linux)
+      id: read-repos-linux
+      if: runner.os == 'Linux'
       run: |
         repos=$(cat repos.txt)
-        echo "::set-output name=repos::$repos"
+        echo "REPOS=$repos" >> $GITHUB_ENV
+
+    - name: Read repository list (Windows)
+      id: read-repos-windows
+      if: runner.os == 'Windows'
+      run: |
+        $repos = Get-Content repos.txt
+        echo "REPOS=$repos" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
     - name: Clone and build each repository
       run: |
-        for repo in ${{ steps.read-repos.outputs.repos }}
+        for repo in ${{ env.REPOS }}
         do
           echo "Cloning $repo"
           git clone $repo
@@ -42,3 +50,48 @@ jobs:
           cargo build --release
           cd ..
         done
+      shell: bash
+
+    - name: Archive built binaries
+      run: |
+        mkdir -p build-artifacts/${{ matrix.os }}
+        for repo in ${{ env.REPOS }}
+        do
+          repo_name=$(basename $repo .git)
+          cp $repo_name/target/release/* build-artifacts/${{ matrix.os }}/
+        done
+        cd build-artifacts/${{ matrix.os }}
+        zip -r ../${{ matrix.os }}-binaries.zip .
+      shell: bash
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.os }}-binaries
+        path: build-artifacts/${{ matrix.os }}-binaries.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: ubuntu-latest-binaries
+        path: ./binaries/linux
+    - uses: actions/download-artifact@v3
+      with:
+        name: windows-latest-binaries
+        path: ./binaries/windows
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          ./binaries/linux/ubuntu-latest-binaries.zip
+          ./binaries/windows/windows-latest-binaries.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
