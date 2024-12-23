@@ -63,7 +63,8 @@ jobs:
           echo "Checking for release directory in $repo_name"
           if [ -d "$repo/target/release" ]; then
             echo "Copying binaries from $repo/target/release"
-            cp -r "$repo/target/release/"* "build-artifacts/${{ matrix.os }}/"
+            mkdir -p "build-artifacts/${{ matrix.os }}/$repo_name"
+            cp -r "$repo/target/release/"* "build-artifacts/${{ matrix.os }}/$repo_name/"
           else
             echo "Release directory not found for $repo_name"
           fi
@@ -80,7 +81,9 @@ jobs:
           Write-Host "Checking for release directory in $repo_name"
           if (Test-Path "$repo_name/target/release") {
             Write-Host "Copying binaries from $repo_name/target/release"
-            Copy-Item "$repo_name/target/release/*" "build-artifacts/${{ matrix.os }}/" -Recurse
+            $dest_path = "build-artifacts/${{ matrix.os }}/$repo_name"
+            New-Item -ItemType Directory -Path $dest_path -Force
+            Copy-Item "$repo_name/target/release/*" -Destination $dest_path -Recurse
           } else {
             Write-Host "Release directory not found for $repo_name"
           }
