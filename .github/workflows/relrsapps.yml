@@ -27,21 +27,22 @@ jobs:
     - name: Read repository list (Linux)
       if: runner.os == 'Linux'
       run: |
-        cat repos.txt | while read repo; do
+        while IFS= read -r repo; do
+          repo=$(echo $repo | tr -d '\r')
           echo "Processing $repo"
           git clone $repo
-          repo_name=$(basename $repo .git)
-          cd $repo_name
+          repo_name=$(basename "$repo" .git)
+          cd "$repo_name"
           echo "Building $repo_name"
           cargo build --release
           cd ..
-        done
+        done < repos.txt
 
     - name: Read repository list (Windows)
       if: runner.os == 'Windows'
       run: |
         Get-Content repos.txt | ForEach-Object {
-          $repo = $_
+          $repo = $_.Trim()
           Write-Host "Processing $repo"
           git clone $repo
           $repo_name = $repo -replace '.*/(.*)\.git', '$1'
