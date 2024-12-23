@@ -57,10 +57,14 @@ jobs:
         mkdir -p build-artifacts/${{ matrix.os }}
         for repo in $(ls -d */); do
           repo_name=$(basename $repo)
-          cp $repo_name/target/release/* build-artifacts/${{ matrix.os }}/
+          if [ -d "$repo_name/target/release" ]; then
+            cp "$repo_name/target/release/*" "build-artifacts/${{ matrix.os }}/"
+          else
+            echo "Release directory not found for $repo_name"
+          fi
         done
         cd build-artifacts/${{ matrix.os }}
-        zip -r ../${{ matrix.os }}-binaries.zip .
+        zip -r "../${{ matrix.os }}-binaries.zip" .
       shell: bash
 
     - name: Upload artifact
