@@ -1,2 +1,2 @@
-https://github.com/user/repo1.git
-https://github.com/user/repo2.git
+https://github.com/Handfish/confetty_rs.git
+https://github.com/skim-rs/skim.git
