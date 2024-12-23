@@ -57,6 +57,7 @@ jobs:
         mkdir -p build-artifacts/${{ matrix.os }}
         for repo in $(ls -d */); do
           repo_name=$(basename $repo)
+          echo "Checking for release directory in $repo"
           if [ -d "$repo/target/release" ]; then
             echo "Copying binaries from $repo/target/release"
             cp "$repo/target/release/"* "build-artifacts/${{ matrix.os }}/"
