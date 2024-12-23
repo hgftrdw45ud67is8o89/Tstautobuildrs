@@ -33,6 +33,7 @@ jobs:
           git clone $repo
           repo_name=$(basename "$repo" .git)
           cd "$repo_name"
+          mkdir -p target/release
           echo "Building $repo_name"
           cargo build --release
           cd ..
@@ -47,6 +48,7 @@ jobs:
           git clone $repo
           $repo_name = $repo -replace '.*/(.*)\.git', '$1'
           Set-Location $repo_name
+          New-Item -ItemType Directory -Path target/release -Force
           Write-Host "Building $repo_name"
           cargo build --release
           Set-Location ..
@@ -60,7 +62,7 @@ jobs:
           echo "Checking for release directory in $repo_name"
           if [ -d "$repo/target/release" ]; then
             echo "Copying binaries from $repo/target/release"
-            cp "$repo/target/release/"* "build-artifacts/${{ matrix.os }}/"
+            cp -r "$repo/target/release/"* "build-artifacts/${{ matrix.os }}/"
           else
             echo "Release directory not found for $repo_name"
           fi
