@@ -25,24 +25,10 @@ jobs:
         override: true
 
     - name: Read repository list (Linux)
-      id: read-repos-linux
       if: runner.os == 'Linux'
       run: |
-        repos=$(cat repos.txt)
-        echo "REPOS=$repos" >> $GITHUB_ENV
-
-    - name: Read repository list (Windows)
-      id: read-repos-windows
-      if: runner.os == 'Windows'
-      run: |
-        $repos = Get-Content repos.txt
-        echo "REPOS=$repos" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-    - name: Clone and build each repository
-      run: |
-        for repo in ${{ env.REPOS }}
-        do
-          echo "Cloning $repo"
+        cat repos.txt | while read repo; do
+          echo "Processing $repo"
           git clone $repo
           repo_name=$(basename $repo .git)
           cd $repo_name
@@ -50,14 +36,26 @@ jobs:
           cargo build --release
           cd ..
         done
-      shell: bash
+
+    - name: Read repository list (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        Get-Content repos.txt | ForEach-Object {
+          $repo = $_
+          Write-Host "Processing $repo"
+          git clone $repo
+          $repo_name = $repo -replace '.*/(.*)\.git', '$1'
+          Set-Location $repo_name
+          Write-Host "Building $repo_name"
+          cargo build --release
+          Set-Location ..
+        }
 
     - name: Archive built binaries
       run: |
         mkdir -p build-artifacts/${{ matrix.os }}
-        for repo in ${{ env.REPOS }}
-        do
-          repo_name=$(basename $repo .git)
+        for repo in $(ls -d */); do
+          repo_name=$(basename $repo)
           cp $repo_name/target/release/* build-artifacts/${{ matrix.os }}/
         done
         cd build-artifacts/${{ matrix.os }}
