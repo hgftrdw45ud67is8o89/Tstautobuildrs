@@ -112,6 +112,13 @@ jobs:
       with:
         name: windows-latest-binaries
         path: ./binaries/windows
+    - name: Create Tag
+      id: tag
+      run: |
+        # Create a unique tag using the current date and time
+        NEW_TAG=$(date +'%Y%m%d%H%M%S')
+        git tag $NEW_TAG
+        git push origin $NEW_TAG
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
@@ -119,5 +126,6 @@ jobs:
         files: |
           ./binaries/linux/ubuntu-latest-binaries.zip
           ./binaries/windows/windows-latest-binaries.zip
+        token: ${{ secrets.GITHUB_TOKEN }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
