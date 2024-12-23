@@ -54,7 +54,8 @@ jobs:
           Set-Location ..
         }
 
-    - name: Archive built binaries
+    - name: Archive built binaries (Linux)
+      if: runner.os == 'Linux'
       run: |
         mkdir -p build-artifacts/${{ matrix.os }}
         for repo in $(ls -d */); do
@@ -69,7 +70,22 @@ jobs:
         done
         cd build-artifacts/${{ matrix.os }}
         zip -r "../${{ matrix.os }}-binaries.zip" .
-      shell: bash
+
+    - name: Archive built binaries (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        mkdir -p build-artifacts/${{ matrix.os }}
+        Get-ChildItem -Directory | ForEach-Object {
+          $repo_name = $_.Name
+          Write-Host "Checking for release directory in $repo_name"
+          if (Test-Path "$repo_name/target/release") {
+            Write-Host "Copying binaries from $repo_name/target/release"
+            Copy-Item "$repo_name/target/release/*" "build-artifacts/${{ matrix.os }}/" -Recurse
+          } else {
+            Write-Host "Release directory not found for $repo_name"
+          }
+        }
+        Compress-Archive -Path build-artifacts/${{ matrix.os }}/* -DestinationPath build-artifacts/${{ matrix.os }}-binaries.zip
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
