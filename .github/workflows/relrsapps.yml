@@ -1,0 +1,44 @@
+name: Build Rust Apps
+
+on:
+  schedule:
+    # Run at 00:00 on the first of every month
+    - cron: '0 0 1 * *'
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        override: true
+
+    - name: Read repository list
+      id: read-repos
+      run: |
+        repos=$(cat repos.txt)
+        echo "::set-output name=repos::$repos"
+
+    - name: Clone and build each repository
+      run: |
+        for repo in ${{ steps.read-repos.outputs.repos }}
+        do
+          echo "Cloning $repo"
+          git clone $repo
+          repo_name=$(basename $repo .git)
+          cd $repo_name
+          echo "Building $repo_name"
+          cargo build --release
+          cd ..
+        done
