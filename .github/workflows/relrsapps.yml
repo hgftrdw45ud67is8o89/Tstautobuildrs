@@ -114,7 +114,7 @@ jobs:
         path: ./binaries/windows
 
     - name: Install GitHub CLI
-      uses: actions4gh/setup-gh@v1
+      uses: actions4gh/setup-gh@v1.0.2
 
     - name: Generate Release Tag
       id: generate_tag
