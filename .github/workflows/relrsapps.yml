@@ -98,7 +98,7 @@ jobs:
               cd ../../
             else  #if no direct bin using proj name
               echo "no bin in $repo_name/release"
-              cp -r "$repo_name/release/"* "$tmprepo" --exclude build --exclude deps --exclude .fingerprint --exclude CACHEDIR.TAG  >/dev/null || : #https://serverfault.com/questions/153875/how-to-let-cp-command-dont-fire-an-error-when-source-file-does-not-exist#153893
+              cp "$repo_name/release/"* "$tmprepo" >/dev/null || : #https://serverfault.com/questions/153875/how-to-let-cp-command-dont-fire-an-error-when-source-file-does-not-exist#153893
               cd "$tmprepo"&&ls -al
               zip "../../../../binaries-ubuntu-latest.zip" $repo_name
               cd ../../
