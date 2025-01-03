@@ -1,1 +1,4 @@
 https://github.com/Handfish/confetty_rs.git
+https://github.com/skim-rs/skim.git
+https://github.com/yashs662/rust_kanban.git
+https://github.com/XAMPPRocky/tokei.git
