@@ -73,8 +73,8 @@ jobs:
         Copy-Item -Path "build-artifacts/${{ matrix.os }}/*" -Destination $fullReleasePath -Recurse
         Compress-Archive -Path "$fullReleasePath/*" -DestinationPath "full-release-windows-latest.zip"
         # Print the contents of the directory
-        Write-Host "Contents of full-release directory:"
-        Get-ChildItem -Path $fullReleasePath -Recurse
+        #Write-Host "Contents of full-release directory:"
+        #Get-ChildItem -Path $fullReleasePath -Recurse
 
     - name: Archive built binaries (Linux)
       if: runner.os == 'Linux'
@@ -120,17 +120,18 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         $artifactsPath = "build-artifacts/${{ matrix.os }}"
-        $binspath="$artifactsPath/bin"
+        $binspath="top/bin"
         if (-Not (Test-Path -Path $artifactsPath)) {
           New-Item -ItemType Directory -Path $artifactsPath -Force
         }
+        if (-Not (Test-Path -Path $binspath)) {New-Item -ItemType Directory -Path $binspath -Force }
         Get-ChildItem -Path $artifactsPath | Where-Object { $_.PSIsContainer } | ForEach-Object {
           $repo_name = $_.Name
-          #Write-Host "Checking for release directory in $repo_name"
+          Write-Host "Checking for release directory in $repo_name"
           if (Test-Path "$artifactsPath/$repo_name/release") {
             #Write-Host "Copying binaries from $repo_name/release"
-            $dest_path = "$artifactsPath/$repo_name"
-            New-Item -ItemType Directory -Path $dest_path -Force
+            #$dest_path = "$artifactsPath/$repo_name"
+            #New-Item -ItemType Directory -Path $dest_path -Force
             #Copy-Item "$artifactsPath/$repo_name/release/*" -Destination $dest_path -Recurse#no recurse so,binaries only
             #Compress-Archive -Path "$dest_path/*.exe" -DestinationPath "binaries-windows-latest.zip" -Update
             Copy-Item "$artifactsPath/$repo_name/release/*.exe" -Destination $binspath
@@ -141,7 +142,7 @@ jobs:
         }
         #final make zip
         Get-ChildItem -Path $binspath -Recurse
-        Compress-Archive -Path "$binspath/*.exe" -DestinationPath "binaries-windows-latest.zip"
+        Compress-Archive -Path "$binspath/*" -DestinationPath "binaries-windows-latest.zip"
         #Compress-Archive -Path "$artifactsPath/*" -DestinationPath "binaries-windows-latest.zip"#stupid ai gt all
         # Print the contents of the directory,stupid ai debug use.
         #Write-Host "Contents of build-artifacts directory:"
