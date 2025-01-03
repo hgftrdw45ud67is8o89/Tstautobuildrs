@@ -94,7 +94,7 @@ jobs:
             cp "$repo_name/release/$repo_name" "$tmprepo" >/dev/null || : #https://serverfault.com/questions/153875/how-to-let-cp-command-dont-fire-an-error-when-source-file-does-not-exist#153893
             cd "$tmprepo"&&ls -al
             zip "../../../../binaries-ubuntu-latest.zip" $repo_name
-            cd ../../../../ &&ls -al
+            cd ../../
           else
             echo "Release directory not found for $repo_name"#DO NOT PACK HERE.correct repo name? build-artifacts/
             #cd build-artifacts/${{ matrix.os }}
@@ -104,6 +104,7 @@ jobs:
             #zip -r "../../binaries-ubuntu-latest.zip" ./
           fi
         done
+        cd ../../ &&ls -al
         # Print the contents of the directory
 
     - name: Archive built binaries (Windows)
