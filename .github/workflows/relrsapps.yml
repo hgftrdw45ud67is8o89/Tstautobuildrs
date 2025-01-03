@@ -86,16 +86,18 @@ jobs:
           if [ -d "$repo/target/release" ]; then
             echo "Copying binaries from $repo/target/release"
             mkdir -p "build-artifacts/${{ matrix.os }}/$repo_name"
-            cp -r "$repo/target/release/"* "build-artifacts/${{ matrix.os }}/$repo_name/"
+            #cp -r "$repo/target/release/"* "build-artifacts/${{ matrix.os }}/$repo_name/"#stupid dont need folder anymore
+            cp -r "$repo/target/release/"* "build-artifacts/${{ matrix.os }}/"
           else
             echo "Release directory not found for $repo_name"
           fi
         done
         cd build-artifacts/${{ matrix.os }}
-        zip "../../binaries-ubuntu-latest.zip" .
         # Print the contents of the directory
         echo "Contents of build-artifacts directory:"
         ls -al
+        zip -r "../../binaries-ubuntu-latest.zip" ./
+        
 
     - name: Archive built binaries (Windows)
       if: runner.os == 'Windows'
