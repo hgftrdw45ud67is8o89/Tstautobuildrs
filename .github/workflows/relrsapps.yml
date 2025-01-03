@@ -59,6 +59,9 @@ jobs:
         cp -r build-artifacts/${{ matrix.os }}/* full-release/${{ matrix.os }}/
         cd full-release/${{ matrix.os }}
         zip -r "../../full-release-ubuntu-latest.zip" .
+        # Print the contents of the directory
+        echo "Contents of full-release directory:"
+        ls -al
 
     - name: Archive full release directory (Windows)
       if: runner.os == 'Windows'
@@ -69,6 +72,9 @@ jobs:
         }
         Copy-Item -Path "build-artifacts/${{ matrix.os }}/*" -Destination $fullReleasePath -Recurse
         Compress-Archive -Path "$fullReleasePath/*" -DestinationPath "../../full-release-windows-latest.zip"
+        # Print the contents of the directory
+        Write-Host "Contents of full-release directory:"
+        Get-ChildItem -Path $fullReleasePath -Recurse
 
     - name: Archive built binaries (Linux)
       if: runner.os == 'Linux'
@@ -87,6 +93,9 @@ jobs:
         done
         cd build-artifacts/${{ matrix.os }}
         zip -r "../../binaries-ubuntu-latest.zip" .
+        # Print the contents of the directory
+        echo "Contents of build-artifacts directory:"
+        ls -al
 
     - name: Archive built binaries (Windows)
       if: runner.os == 'Windows'
@@ -108,6 +117,9 @@ jobs:
           }
         }
         Compress-Archive -Path "$artifactsPath/*" -DestinationPath "../../binaries-windows-latest.zip"
+        # Print the contents of the directory
+        Write-Host "Contents of build-artifacts directory:"
+        Get-ChildItem -Path $artifactsPath -Recurse
 
     - name: Upload full release artifact (Linux)
       if: runner.os == 'Linux'
@@ -189,6 +201,9 @@ jobs:
       run: |
           gh release upload $TAG ./binaries/windows/binaries-windows-latest.zip
       env:
+          GH_REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ env.TAG }}
           GH_REPO: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ env.TAG }}
