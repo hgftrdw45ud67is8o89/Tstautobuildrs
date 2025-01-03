@@ -109,6 +109,12 @@ jobs:
         }
         Compress-Archive -Path "$artifactsPath/*" -DestinationPath "../${{ matrix.os }}-binaries.zip"
 
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.os }}-binaries
+        path: build-artifacts/${{ matrix.os }}-binaries.zip
+
   release:
     needs: build
     runs-on: ubuntu-latest
