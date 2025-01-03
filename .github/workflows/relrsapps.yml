@@ -58,7 +58,7 @@ jobs:
         mkdir -p full-release/${{ matrix.os }}
         cp -r build-artifacts/${{ matrix.os }}/* full-release/${{ matrix.os }}/
         cd full-release/${{ matrix.os }}
-        zip -r "../full-release-${{ matrix.os }}.zip" .
+        zip -r "../../full-release-ubuntu-latest.zip" .
 
     - name: Archive full release directory (Windows)
       if: runner.os == 'Windows'
@@ -68,7 +68,7 @@ jobs:
           New-Item -ItemType Directory -Path $fullReleasePath -Force
         }
         Copy-Item -Path "build-artifacts/${{ matrix.os }}/*" -Destination $fullReleasePath -Recurse
-        Compress-Archive -Path "$fullReleasePath/*" -DestinationPath "../full-release-${{ matrix.os }}.zip"
+        Compress-Archive -Path "$fullReleasePath/*" -DestinationPath "../../full-release-windows-latest.zip"
 
     - name: Archive built binaries (Linux)
       if: runner.os == 'Linux'
@@ -86,7 +86,7 @@ jobs:
           fi
         done
         cd build-artifacts/${{ matrix.os }}
-        zip -r "../binaries-${{ matrix.os }}.zip" .
+        zip -r "../../binaries-ubuntu-latest.zip" .
 
     - name: Archive built binaries (Windows)
       if: runner.os == 'Windows'
@@ -107,7 +107,7 @@ jobs:
             Write-Host "Release directory not found for $repo_name"
           }
         }
-        Compress-Archive -Path "$artifactsPath/*" -DestinationPath "../binaries-${{ matrix.os }}.zip"
+        Compress-Archive -Path "$artifactsPath/*" -DestinationPath "../../binaries-windows-latest.zip"
 
     - name: Upload full release artifact (Linux)
       if: runner.os == 'Linux'
