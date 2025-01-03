@@ -120,6 +120,7 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         $artifactsPath = "build-artifacts/${{ matrix.os }}"
+        $binspath="$artifactsPath/bin"
         if (-Not (Test-Path -Path $artifactsPath)) {
           New-Item -ItemType Directory -Path $artifactsPath -Force
         }
@@ -131,8 +132,8 @@ jobs:
             $dest_path = "$artifactsPath/$repo_name"
             New-Item -ItemType Directory -Path $dest_path -Force
             #Copy-Item "$artifactsPath/$repo_name/release/*" -Destination $dest_path -Recurse#no recurse so,binaries only
-            Copy-Item "$artifactsPath/$repo_name/release/*.exe" -Destination $dest_path
-            Compress-Archive -Path "$dest_path/*.exe" -DestinationPath "binaries-windows-latest.zip" -Update
+            #Compress-Archive -Path "$dest_path/*.exe" -DestinationPath "binaries-windows-latest.zip" -Update
+            Copy-Item "$artifactsPath/$repo_name/release/*.exe" -Destination $binspath
           } else {
             Write-Host "Release directory not found for $repo_name.Do full release."
             Compress-Archive -Path "$artifactsPath/*" -DestinationPath "binaries-windows-latest.zip" -Update
@@ -142,6 +143,8 @@ jobs:
         # Print the contents of the directory,stupid ai debug use.
         #Write-Host "Contents of build-artifacts directory:"
         #Get-ChildItem -Path $artifactsPath -Recurse
+        #final make zip
+        Compress-Archive -Path "$binspath/*.exe" -DestinationPath "binaries-windows-latest.zip" -Update
 
     - name: Upload full release artifact (Linux)
       if: runner.os == 'Linux'
