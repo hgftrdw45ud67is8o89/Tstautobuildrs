@@ -33,9 +33,8 @@ jobs:
           git clone $repo
           repo_name=$(basename "$repo" .git)
           cd "$repo_name"
-          mkdir -p target/release
           echo "Building $repo_name"
-          cargo build --release
+          cargo build --release --target-dir "../build-artifacts/${{ matrix.os }}/$repo_name"
           cd ..
         done < repos.txt
 
@@ -48,9 +47,8 @@ jobs:
           git clone $repo
           $repo_name = $repo -replace '.*/(.*)\.git', '$1'
           Set-Location $repo_name
-          New-Item -ItemType Directory -Path target/release -Force
           Write-Host "Building $repo_name"
-          cargo build --release
+          cargo build --release --target-dir "../build-artifacts/${{ matrix.os }}/$repo_name"
           Set-Location ..
         }
 
