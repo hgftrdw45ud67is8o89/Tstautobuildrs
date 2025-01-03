@@ -139,12 +139,12 @@ jobs:
             Compress-Archive -Path "$artifactsPath/*" -DestinationPath "binaries-windows-latest.zip" -Update
           }
         }
+        #final make zip
+        Compress-Archive -Path "$binspath/*.exe" -DestinationPath "binaries-windows-latest.zip"
         #Compress-Archive -Path "$artifactsPath/*" -DestinationPath "binaries-windows-latest.zip"#stupid ai gt all
         # Print the contents of the directory,stupid ai debug use.
         #Write-Host "Contents of build-artifacts directory:"
-        #Get-ChildItem -Path $artifactsPath -Recurse
-        #final make zip
-        Compress-Archive -Path "$binspath/*.exe" -DestinationPath "binaries-windows-latest.zip" -Update
+        Get-ChildItem -Path $artifactsPath -Recurse
 
     - name: Upload full release artifact (Linux)
       if: runner.os == 'Linux'
