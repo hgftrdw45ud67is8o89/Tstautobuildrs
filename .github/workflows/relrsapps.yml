@@ -152,7 +152,6 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -180,6 +179,16 @@ jobs:
       with:
         name: binaries-windows-latest
         path: ./binaries/windows
+    
+    - name: Install GitHub CLI
+      uses: actions4gh/setup-gh@v1.0.2
+
+    - name: Generate Release Tag
+      id: generate_tag
+      run: |
+          # Generate a unique tag using the current date and time
+          TAG="v$(date +'%Y%m%d%H%M%S')"
+          echo "TAG=$TAG" >> $GITHUB_ENV
 
     - name: Create Release using GitHub CLI
       run: |
