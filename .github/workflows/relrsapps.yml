@@ -104,7 +104,7 @@ jobs:
         if (-Not (Test-Path -Path $artifactsPath)) {
           New-Item -ItemType Directory -Path $artifactsPath -Force
         }
-        Get-ChildItem -Directory | ForEach-Object {
+        Get-ChildItem -Path $artifactsPath -Recurse | Where-Object { $_.PSIsContainer } | ForEach-Object {
           $repo_name = $_.Name
           Write-Host "Checking for release directory in $repo_name"
           if (Test-Path "$_/$repo_name/target/release") {
@@ -204,4 +204,3 @@ jobs:
           GH_REPO: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ env.TAG }}
-
