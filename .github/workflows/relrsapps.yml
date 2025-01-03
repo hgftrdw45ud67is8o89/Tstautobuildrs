@@ -86,8 +86,8 @@ jobs:
           if [ -d "$repo/target/release" ]; then
             echo "Copying binaries from $repo/target/release"
             mkdir -p "build-artifacts/${{ matrix.os }}/$repo_name"
-            #cp -r "$repo/target/release/"* "build-artifacts/${{ matrix.os }}/$repo_name/"#stupid dont need folder anymore
-            cp -r "$repo/target/release/"* "build-artifacts/${{ matrix.os }}/"
+            cp -r "$repo/target/release/"* "build-artifacts/${{ matrix.os }}/$repo_name/"#stupid dont need folder anymore
+            #cp -r "$repo/target/release/"* "build-artifacts/${{ matrix.os }}/"
           else
             echo "Release directory not found for $repo_name"
           fi
@@ -113,15 +113,15 @@ jobs:
             #Write-Host "Copying binaries from $repo_name/target/release"
             $dest_path = "$artifactsPath/$repo_name"
             New-Item -ItemType Directory -Path $dest_path -Force
-            Copy-Item "$artifactsPath/$repo_name/target/release/*" -Destination $dest_path -Recurse
+            Copy-Item "$artifactsPath/$repo_name/target/release/*.x" -Destination $dest_path -Recurse
           } else {
             Write-Host "Release directory not found for $repo_name"
           }
         }
         #Compress-Archive -Path "$artifactsPath/*" -DestinationPath "binaries-windows-latest.zip"#stupid ai gt all
         # Print the contents of the directory,stupid ai debug use.
-        #Write-Host "Contents of build-artifacts directory:"
-        #Get-ChildItem -Path $artifactsPath -Recurse
+        Write-Host "Contents of build-artifacts directory:"
+        Get-ChildItem -Path $artifactsPath -Recurse
         Compress-Archive -Path "$artifactsPath/*.exe" -DestinationPath "binaries-windows-latest.zip"
 
     - name: Upload full release artifact (Linux)
