@@ -92,13 +92,14 @@ jobs:
             zip -r "../../binaries-ubuntu-latest.zip" ./
           else
             echo "Release directory not found for $repo_name"
+            cd build-artifacts/${{ matrix.os }}
+            # Print the contents of the directory
+            echo "Contents of build-artifacts directory:"
+            ls -al
+            zip -r "../../binaries-ubuntu-latest.zip" ./
           fi
         done
-        cd build-artifacts/${{ matrix.os }}
         # Print the contents of the directory
-        echo "Contents of build-artifacts directory:"
-        ls -al
-        zip -r "../../binaries-ubuntu-latest.zip" ./
 
     - name: Archive built binaries (Windows)
       if: runner.os == 'Windows'
