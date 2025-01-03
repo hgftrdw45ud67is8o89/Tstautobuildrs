@@ -68,7 +68,7 @@ jobs:
           New-Item -ItemType Directory -Path $fullReleasePath -Force
         }
         Copy-Item -Path "build-artifacts/${{ matrix.os }}/*" -Destination $fullReleasePath -Recurse
-        Compress-Archive -Path "$fullReleasePath/*" -DestinationPath "$fullReleasePath-full-release.zip"
+        Compress-Archive -Path "$fullReleasePath/*" -DestinationPath "../${{ matrix.os }}-full-release.zip"
 
     - name: Archive built binaries (Linux)
       if: runner.os == 'Linux'
@@ -107,13 +107,7 @@ jobs:
             Write-Host "Release directory not found for $repo_name"
           }
         }
-        Compress-Archive -Path "$artifactsPath/*" -DestinationPath "$artifactsPath-binaries.zip"
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ matrix.os }}-binaries
-        path: build-artifacts/${{ matrix.os }}-binaries.zip
+        Compress-Archive -Path "$artifactsPath/*" -DestinationPath "../${{ matrix.os }}-binaries.zip"
 
   release:
     needs: build
@@ -144,13 +138,25 @@ jobs:
 
     - name: Create Release using GitHub CLI
       run: |
-          gh release create $TAG ./binaries/linux/*.zip
+          gh release create $TAG ./full-release/${{ matrix.os }}-full-release.zip
       env:
           GH_REPO: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Upload Windows Binaries
+          TAG: ${{ env.TAG }}
+
+    - name: Upload Linux Binaries
+      if: runner.os == 'Linux'
       run: |
-          gh release upload $TAG ./binaries/windows/windows-latest-binaries.zip
+          gh release upload $TAG ./build-artifacts/${{ matrix.os }}-binaries.zip
+      env:
+          GH_REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ env.TAG }}
+
+    - name: Upload Windows Binaries
+      if: runner.os == 'Windows'
+      run: |
+          gh release upload $TAG ./build-artifacts/${{ matrix.os }}-binaries.zip
       env:
           GH_REPO: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
