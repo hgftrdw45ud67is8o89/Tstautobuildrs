@@ -84,15 +84,14 @@ jobs:
         for repo in $(ls -d */); do
           echo "correct repo name? $repo"
           repo_name=$(basename "$repo")
-          echo "Checking for release directory in $repo_name"
-          ls -al
+          echo "Checking for release directory in $repo_name"#ls -al
           if [ -d "$repo_name/release" ]; then
-            #cd $repo_name&&ls -al#dbug use
+            cd $repo_name&&ls -al#dbug use
             echo "Copying binaries from $repo_name/release"
             tmprepo="build-artifacts/$repo_name"
             mkdir -p "$tmprepo"
             #cp -r "$repo_name/target/release/"* "build-artifacts/${{ matrix.os }}/$repo_name/" #stupid dont need folder anymore
-            cp "$repo_name/release/$repo_name" "/$tmprepo" >/dev/null || : #https://serverfault.com/questions/153875/how-to-let-cp-command-dont-fire-an-error-when-source-file-does-not-exist#153893
+            cp "$repo_name/release/$repo_name" "$tmprepo" >/dev/null || : #https://serverfault.com/questions/153875/how-to-let-cp-command-dont-fire-an-error-when-source-file-does-not-exist#153893
             cd "$tmprepo"&&ls -al
             zip "../../binaries-ubuntu-latest.zip" $repo_name
             cd ../../ &&ls -al
