@@ -59,6 +59,7 @@ jobs:
         cp -r build-artifacts/${{ matrix.os }}/* full-release/${{ matrix.os }}/
         cd full-release/${{ matrix.os }}
         zip -r "../../full-release-ubuntu-latest.zip" .
+        # Print the contents of the directory
         echo "Contents of full-release directory:"
         ls -al
 
@@ -70,7 +71,8 @@ jobs:
           New-Item -ItemType Directory -Path $fullReleasePath -Force
         }
         Copy-Item -Path "build-artifacts/${{ matrix.os }}/*" -Destination $fullReleasePath -Recurse
-        Compress-Archive -Path "$fullReleasePath/*" -DestinationPath "../../full-release-windows-latest.zip"
+        Compress-Archive -Path "$fullReleasePath/*" -DestinationPath "full-release-windows-latest.zip"
+        # Print the contents of the directory
         Write-Host "Contents of full-release directory:"
         Get-ChildItem -Path $fullReleasePath -Recurse
 
@@ -91,6 +93,7 @@ jobs:
         done
         cd build-artifacts/${{ matrix.os }}
         zip -r "../../binaries-ubuntu-latest.zip" .
+        # Print the contents of the directory
         echo "Contents of build-artifacts directory:"
         ls -al
 
@@ -101,7 +104,7 @@ jobs:
         if (-Not (Test-Path -Path $artifactsPath)) {
           New-Item -ItemType Directory -Path $artifactsPath -Force
         }
-        Get-ChildItem -Path $artifactsPath -Recurse | Where-Object { $_.PSIsContainer } | ForEach-Object {
+        Get-ChildItem -Path $artifactsPath | Where-Object { $_.PSIsContainer } | ForEach-Object {
           $repo_name = $_.Name
           Write-Host "Checking for release directory in $repo_name"
           if (Test-Path "$artifactsPath/$repo_name/target/release") {
@@ -113,7 +116,8 @@ jobs:
             Write-Host "Release directory not found for $repo_name"
           }
         }
-        Compress-Archive -Path "$artifactsPath/*" -DestinationPath "../../binaries-windows-latest.zip"
+        Compress-Archive -Path "$artifactsPath/*" -DestinationPath "binaries-windows-latest.zip"
+        # Print the contents of the directory
         Write-Host "Contents of build-artifacts directory:"
         Get-ChildItem -Path $artifactsPath -Recurse
 
