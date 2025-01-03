@@ -81,15 +81,16 @@ jobs:
       run: |
         mkdir -p build-artifacts/${{ matrix.os }}
         for repo in $(ls -d */); do
+          echo "correct repo name? $repo"
           repo_name=$(basename "$repo")
           echo "Checking for release directory in $repo_name"
-          if [ -d "$repo/release" ]; then
+          if [ -d "$repo_name/release" ]; then
             echo "Copying binaries from $repo/target/release"
             mkdir -p "build-artifacts/${{ matrix.os }}/$repo_name"
             #cp -r "$repo/target/release/"* "build-artifacts/${{ matrix.os }}/$repo_name/" #stupid dont need folder anymore
-            cp "$repo/release/"* "build-artifacts/${{ matrix.os }}/$repo_name"
+            cp "$repo/release/"* "build-artifacts/${{ matrix.os }}/$repo_name" >/dev/null || : #https://serverfault.com/questions/153875/how-to-let-cp-command-dont-fire-an-error-when-source-file-does-not-exist#153893
             cd "build-artifacts/${{ matrix.os }}/$repo_name"
-            zip -r "../../binaries-ubuntu-latest.zip" ./
+            zip "../../binaries-ubuntu-latest.zip" ./
           else
             echo "Release directory not found for $repo_name"
             cd build-artifacts/${{ matrix.os }}
