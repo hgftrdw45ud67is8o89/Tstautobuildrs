@@ -105,7 +105,7 @@ jobs:
           fi
         done
         cd ../../ &&ls -al
-        # Print the contents of the directory
+        # Print the contents of the directory,to mak sure zip same layer as full rel
 
     - name: Archive built binaries (Windows)
       if: runner.os == 'Windows'
