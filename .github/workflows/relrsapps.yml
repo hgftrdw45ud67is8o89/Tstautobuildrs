@@ -80,12 +80,13 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         mkdir -p build-artifacts/${{ matrix.os }}
+        cd full-release/${{ matrix.os }}
         for repo in $(ls -d */); do
           echo "correct repo name? $repo"
           repo_name=$(basename "$repo")
           echo "Checking for release directory in $repo_name"
           ls -al
-          if [ -d "$repo_name" ]; then
+          if [ -d "$repo_name/release" ]; then
             cd $repo_name
             ls -al
             echo "Copying binaries from $repo_name/release"
