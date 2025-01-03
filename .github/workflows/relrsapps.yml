@@ -109,21 +109,22 @@ jobs:
         Get-ChildItem -Path $artifactsPath | Where-Object { $_.PSIsContainer } | ForEach-Object {
           $repo_name = $_.Name
           #Write-Host "Checking for release directory in $repo_name"
-          if (Test-Path "$artifactsPath/$repo_name/target/release") {
-            #Write-Host "Copying binaries from $repo_name/target/release"
+          if (Test-Path "$artifactsPath/$repo_name/release") {
+            #Write-Host "Copying binaries from $repo_name/release"
             $dest_path = "$artifactsPath/$repo_name"
             New-Item -ItemType Directory -Path $dest_path -Force
-            #Copy-Item "$artifactsPath/$repo_name/target/release/*" -Destination $dest_path -Recurse#no recurse so,binaries only
-            Copy-Item "$artifactsPath/$repo_name/target/release/*.exe" -Destination $dest_path
+            #Copy-Item "$artifactsPath/$repo_name/release/*" -Destination $dest_path -Recurse#no recurse so,binaries only
+            Copy-Item "$artifactsPath/$repo_name/release/*.exe" -Destination $dest_path
+            Compress-Archive -Path "$dest_path/*.exe" -DestinationPath "binaries-windows-latest.zip"
           } else {
-            Write-Host "Release directory not found for $repo_name"
+            Write-Host "Release directory not found for $repo_name.Do full release."
+            Compress-Archive -Path "$artifactsPath/*" -DestinationPath "binaries-windows-latest.zip"
           }
         }
         #Compress-Archive -Path "$artifactsPath/*" -DestinationPath "binaries-windows-latest.zip"#stupid ai gt all
         # Print the contents of the directory,stupid ai debug use.
-        Write-Host "Contents of build-artifacts directory:"
-        Get-ChildItem -Path $artifactsPath -Recurse
-        Compress-Archive -Path "$artifactsPath/*.exe" -DestinationPath "binaries-windows-latest.zip"
+        #Write-Host "Contents of build-artifacts directory:"
+        #Get-ChildItem -Path $artifactsPath -Recurse
 
     - name: Upload full release artifact (Linux)
       if: runner.os == 'Linux'
