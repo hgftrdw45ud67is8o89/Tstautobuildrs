@@ -84,6 +84,7 @@ jobs:
           echo "correct repo name? $repo"
           repo_name=$(basename "$repo")
           echo "Checking for release directory in $repo_name"
+          ls -al
           if [ -d "$repo_name/release" ]; then
             echo "Copying binaries from $reporelease"
             mkdir -p "build-artifacts/${{ matrix.os }}/$repo_name"
