@@ -86,7 +86,8 @@ jobs:
           repo_name=$(basename "$repo")
           echo "Checking for release directory in $repo_name"
           if [ -d "$repo_name/release" ]; then
-            cd $repo_name&&ls -al#dbug use
+            cd $repo_name&&ls -al
+            #dbug use
             echo "Copying binaries from $repo_name/release"
             tmprepo="build-artifacts/$repo_name"
             mkdir -p "$tmprepo"
