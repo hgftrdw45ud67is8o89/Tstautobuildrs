@@ -83,11 +83,11 @@ jobs:
         for repo in $(ls -d */); do
           repo_name=$(basename "$repo")
           echo "Checking for release directory in $repo_name"
-          if [ -d "$repo/target/release" ]; then
+          if [ -d "$repo/release" ]; then
             echo "Copying binaries from $repo/target/release"
             mkdir -p "build-artifacts/${{ matrix.os }}/$repo_name"
             #cp -r "$repo/target/release/"* "build-artifacts/${{ matrix.os }}/$repo_name/"#stupid dont need folder anymore
-            cp -r "$repo/target/release/"* "build-artifacts/${{ matrix.os }}/"
+            cp "$repo/release/"* "build-artifacts/${{ matrix.os }}/"
           else
             echo "Release directory not found for $repo_name"
           fi
