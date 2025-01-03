@@ -132,10 +132,10 @@ jobs:
             New-Item -ItemType Directory -Path $dest_path -Force
             #Copy-Item "$artifactsPath/$repo_name/release/*" -Destination $dest_path -Recurse#no recurse so,binaries only
             Copy-Item "$artifactsPath/$repo_name/release/*.exe" -Destination $dest_path
-            Compress-Archive -Path "$dest_path/*.exe" -DestinationPath "binaries-windows-latest.zip"
+            Compress-Archive -Path "$dest_path/*.exe" -DestinationPath "binaries-windows-latest.zip" -Update
           } else {
             Write-Host "Release directory not found for $repo_name.Do full release."
-            Compress-Archive -Path "$artifactsPath/*" -DestinationPath "binaries-windows-latest.zip"
+            Compress-Archive -Path "$artifactsPath/*" -DestinationPath "binaries-windows-latest.zip" -Update
           }
         }
         #Compress-Archive -Path "$artifactsPath/*" -DestinationPath "binaries-windows-latest.zip"#stupid ai gt all
