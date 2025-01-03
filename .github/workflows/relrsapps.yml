@@ -29,12 +29,10 @@ jobs:
       run: |
         while IFS= read -r repo; do
           repo=$(echo $repo | tr -d '\r')
-          echo "Processing $repo"
           git clone $repo
           repo_name=$(basename "$repo" .git)
           cd "$repo_name"
-          echo "Building $repo_name"
-          cargo build --release --target-dir "../build-artifacts/${{ matrix.os }}/$repo_name"
+          cargo build --release --target-dir "../build-artifacts/${{ matrix.os }}/$repo_name" --quiet
           cd ..
         done < repos.txt
 
@@ -48,7 +46,7 @@ jobs:
           $repo_name = $repo -replace '.*/(.*)\.git', '$1'
           Set-Location $repo_name
           Write-Host "Building $repo_name"
-          cargo build --release --target-dir "../build-artifacts/${{ matrix.os }}/$repo_name"
+          cargo build --release --target-dir "../build-artifacts/${{ matrix.os }}/$repo_name" --quiet
           Set-Location ..
         }
 
@@ -59,10 +57,6 @@ jobs:
         cp -r build-artifacts/${{ matrix.os }}/* full-release/${{ matrix.os }}/
         cd full-release/${{ matrix.os }}
         zip -r "../../full-release-ubuntu-latest.zip" .
-        # Print the contents of the directory
-        echo "Contents of full-release directory:"
-        ls -al
-
     - name: Archive full release directory (Windows)
       if: runner.os == 'Windows'
       run: |
@@ -72,9 +66,6 @@ jobs:
         }
         Copy-Item -Path "build-artifacts/${{ matrix.os }}/*" -Destination $fullReleasePath -Recurse
         Compress-Archive -Path "$fullReleasePath/*" -DestinationPath "full-release-windows-latest.zip"
-        # Print the contents of the directory
-        #Write-Host "Contents of full-release directory:"
-        #Get-ChildItem -Path $fullReleasePath -Recurse
 
     - name: Archive built binaries (Linux)
       if: runner.os == 'Linux'
@@ -82,40 +73,30 @@ jobs:
         mkdir -p build-artifacts/${{ matrix.os }}
         cd full-release/${{ matrix.os }}
         for repo in $(ls -d */); do
-          echo "correct repo name? $repo"
           repo_name=$(basename "$repo")
           echo "Checking for release directory in $repo_name"
           if [ -d "$repo_name/release" ]; then
-            #cd $repo_name&&ls -al #dbug use only break script
-            echo "Copying binaries from $repo_name/release"
             tmprepo="buildartifacts/$repo_name"
             mkdir -p "$tmprepo"
             #cp -r "$repo_name/target/release/"* "build-artifacts/${{ matrix.os }}/$repo_name/" #stupid dont need folder anymore
             if [ -f "$repo_name/release/$repo_name" ]; then
-              cp "$repo_name/release/$repo_name" "$tmprepo" >/dev/null || : #https://serverfault.com/questions/153875/how-to-let-cp-command-dont-fire-an-error-when-source-file-does-not-exist#153893
-              cd "$tmprepo"&&ls -al
+              cp "$repo_name/release/$repo_name" "$tmprepo" >/dev/null || :
+              cd "$tmprepo"
               zip "../../../../binaries-ubuntu-latest.zip" $repo_name
               cd ../../
             else 
               echo "no direct bin using proj name in $repo_name/release"
-              cp "$repo_name/release/"* "$tmprepo" >/dev/null || : #https://serverfault.com/questions/153875/how-to-let-cp-command-dont-fire-an-error-when-source-file-does-not-exist#153893
-              cd "$tmprepo"&&ls -al
-              #zip bug,kinda hard to pick.https://unix.stackexchange.com/questions/57013/zip-all-files-in-directory
+              cp "$repo_name/release/"* "$tmprepo" >/dev/null || : 
+              cd "$tmprepo"
               zip -r "../../../../binaries-ubuntu-latest.zip" ./
               cd ../../
             fi
           else
-            echo "Release directory not found for $repo_name"#DO NOT PACK HERE.correct repo name? build-artifacts/
-            #cd build-artifacts/${{ matrix.os }}
-            # Print the contents of the directory
-            #echo "Contents of build-artifacts directory:"
-            #ls -al
-            #zip -r "../../binaries-ubuntu-latest.zip" ./
+            echo "Release directory not found for $repo_name"
           fi
         done
-        cd ../../ &&ls -al
-        # Print the contents of the directory,to mak sure zip same layer as full rel
-
+        cd ../../ 
+        
     - name: Archive built binaries (Windows)
       if: runner.os == 'Windows'
       run: |
@@ -129,24 +110,13 @@ jobs:
           $repo_name = $_.Name
           Write-Host "Checking for release directory in $repo_name"
           if (Test-Path "$artifactsPath/$repo_name/release") {
-            #Write-Host "Copying binaries from $repo_name/release"
-            #$dest_path = "$artifactsPath/$repo_name"
-            #New-Item -ItemType Directory -Path $dest_path -Force
-            #Copy-Item "$artifactsPath/$repo_name/release/*" -Destination $dest_path -Recurse#no recurse so,binaries only
-            #Compress-Archive -Path "$dest_path/*.exe" -DestinationPath "binaries-windows-latest.zip" -Update
             Copy-Item "$artifactsPath/$repo_name/release/*.exe" -Destination $binspath
           } else {
-            Write-Host "Release directory not found for $repo_name.Do full release."
             Compress-Archive -Path "$artifactsPath/*" -DestinationPath "binaries-windows-latest.zip" -Update
           }
         }
-        #final make zip
         Get-ChildItem -Path $binspath -Recurse
         Compress-Archive -Path "$binspath/*" -DestinationPath "binaries-windows-latest.zip"
-        #Compress-Archive -Path "$artifactsPath/*" -DestinationPath "binaries-windows-latest.zip"#stupid ai gt all
-        # Print the contents of the directory,stupid ai debug use.
-        #Write-Host "Contents of build-artifacts directory:"
-        #Get-ChildItem -Path $artifactsPath -Recurse
 
     - name: Upload full release artifact (Linux)
       if: runner.os == 'Linux'
