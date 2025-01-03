@@ -100,7 +100,7 @@ jobs:
               echo "no bin in $repo_name/release"
               cp "$repo_name/release/"* "$tmprepo" >/dev/null || : #https://serverfault.com/questions/153875/how-to-let-cp-command-dont-fire-an-error-when-source-file-does-not-exist#153893
               cd "$tmprepo"&&ls -al
-              zip "../../../../binaries-ubuntu-latest.zip" $repo_name
+              zip "../../../../binaries-ubuntu-latest.zip" ./
               cd ../../
             fi
           else
