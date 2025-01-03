@@ -101,6 +101,7 @@ jobs:
               cd "$tmprepo"&&ls -al
               zip "../../../../binaries-ubuntu-latest.zip" $repo_name
               cd ../../
+            fi
           else
             echo "Release directory not found for $repo_name"#DO NOT PACK HERE.correct repo name? build-artifacts/
             #cd build-artifacts/${{ matrix.os }}
