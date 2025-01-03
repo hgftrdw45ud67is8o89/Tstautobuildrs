@@ -84,7 +84,7 @@ jobs:
         for repo in $(ls -d */); do
           echo "correct repo name? $repo"
           repo_name=$(basename "$repo")
-          echo "Checking for release directory in $repo_name"#ls -al
+          echo "Checking for release directory in $repo_name" #ls -al
           if [ -d "$repo_name/release" ]; then
             cd $repo_name&&ls -al#dbug use
             echo "Copying binaries from $repo_name/release"
