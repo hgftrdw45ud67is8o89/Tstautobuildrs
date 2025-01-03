@@ -73,20 +73,23 @@ jobs:
     - name: Archive built binaries (Windows)
       if: runner.os == 'Windows'
       run: |
-        mkdir -p build-artifacts/${{ matrix.os }}
+        $artifactsPath = "build-artifacts/${{ matrix.os }}"
+        if (-Not (Test-Path -Path $artifactsPath)) {
+          New-Item -ItemType Directory -Path $artifactsPath -Force
+        }
         Get-ChildItem -Directory | ForEach-Object {
           $repo_name = $_.Name
           Write-Host "Checking for release directory in $repo_name"
-          if (Test-Path "$repo_name/target/release") {
+          if (Test-Path "$_/$repo_name/target/release") {
             Write-Host "Copying binaries from $repo_name/target/release"
-            $dest_path = "build-artifacts/${{ matrix.os }}/$repo_name"
+            $dest_path = "$artifactsPath/$repo_name"
             New-Item -ItemType Directory -Path $dest_path -Force
-            Copy-Item "$repo_name/target/release/*" -Destination $dest_path -Recurse
+            Copy-Item "$_/$repo_name/target/release/*" -Destination $dest_path -Recurse
           } else {
             Write-Host "Release directory not found for $repo_name"
           }
         }
-        Compress-Archive -Path build-artifacts/${{ matrix.os }}/* -DestinationPath build-artifacts/${{ matrix.os }}-binaries.zip
+        Compress-Archive -Path "$artifactsPath/*" -DestinationPath "$artifactsPath-binaries.zip"
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
