@@ -85,8 +85,10 @@ jobs:
           repo_name=$(basename "$repo")
           echo "Checking for release directory in $repo_name"
           ls -al
-          if [ -d "$repo_name/release" ]; then
-            echo "Copying binaries from $reporelease"
+          if [ -d "$repo_name" ]; then
+            cd $repo_name
+            ls -al
+            echo "Copying binaries from $repo_name/release"
             mkdir -p "build-artifacts/${{ matrix.os }}/$repo_name"
             #cp -r "$repo_name/target/release/"* "build-artifacts/${{ matrix.os }}/$repo_name/" #stupid dont need folder anymore
             cp "$repo_name/release/"* "build-artifacts/${{ matrix.os }}/$repo_name" >/dev/null || : #https://serverfault.com/questions/153875/how-to-let-cp-command-dont-fire-an-error-when-source-file-does-not-exist#153893
