@@ -52,6 +52,24 @@ jobs:
           Set-Location ..
         }
 
+    - name: Archive full release directory (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        mkdir -p full-release/${{ matrix.os }}
+        cp -r build-artifacts/${{ matrix.os }}/* full-release/${{ matrix.os }}/
+        cd full-release/${{ matrix.os }}
+        zip -r "../${{ matrix.os }}-full-release.zip" .
+
+    - name: Archive full release directory (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        $fullReleasePath = "full-release/${{ matrix.os }}"
+        if (-Not (Test-Path -Path $fullReleasePath)) {
+          New-Item -ItemType Directory -Path $fullReleasePath -Force
+        }
+        Copy-Item -Path "build-artifacts/${{ matrix.os }}/*" -Destination $fullReleasePath -Recurse
+        Compress-Archive -Path "$fullReleasePath/*" -DestinationPath "$fullReleasePath-full-release.zip"
+
     - name: Archive built binaries (Linux)
       if: runner.os == 'Linux'
       run: |
