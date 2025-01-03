@@ -58,7 +58,7 @@ jobs:
         mkdir -p full-release/${{ matrix.os }}
         cp -r build-artifacts/${{ matrix.os }}/* full-release/${{ matrix.os }}/
         cd full-release/${{ matrix.os }}
-        zip -r "../${{ matrix.os }}-full-release.zip" .
+        zip -r "../full-release-${{ matrix.os }}.zip" .
 
     - name: Archive full release directory (Windows)
       if: runner.os == 'Windows'
@@ -68,7 +68,7 @@ jobs:
           New-Item -ItemType Directory -Path $fullReleasePath -Force
         }
         Copy-Item -Path "build-artifacts/${{ matrix.os }}/*" -Destination $fullReleasePath -Recurse
-        Compress-Archive -Path "$fullReleasePath/*" -DestinationPath "../${{ matrix.os }}-full-release.zip"
+        Compress-Archive -Path "$fullReleasePath/*" -DestinationPath "../full-release-${{ matrix.os }}.zip"
 
     - name: Archive built binaries (Linux)
       if: runner.os == 'Linux'
@@ -86,7 +86,7 @@ jobs:
           fi
         done
         cd build-artifacts/${{ matrix.os }}
-        zip -r "../${{ matrix.os }}-binaries.zip" .
+        zip -r "../binaries-${{ matrix.os }}.zip" .
 
     - name: Archive built binaries (Windows)
       if: runner.os == 'Windows'
@@ -107,85 +107,87 @@ jobs:
             Write-Host "Release directory not found for $repo_name"
           }
         }
-        Compress-Archive -Path "$artifactsPath/*" -DestinationPath "../${{ matrix.os }}-binaries.zip"
+        Compress-Archive -Path "$artifactsPath/*" -DestinationPath "../binaries-${{ matrix.os }}.zip"
 
     - name: Upload full release artifact (Linux)
       if: runner.os == 'Linux'
       uses: actions/upload-artifact@v3
       with:
-        name: linux-full-release
-        path: full-release/ubuntu-latest-full-release.zip
+        name: full-release-ubuntu-latest
+        path: full-release-ubuntu-latest.zip
 
     - name: Upload full release artifact (Windows)
       if: runner.os == 'Windows'
       uses: actions/upload-artifact@v3
       with:
-        name: windows-full-release
-        path: full-release/windows-latest-full-release.zip
+        name: full-release-windows-latest
+        path: full-release-windows-latest.zip
 
     - name: Upload binaries artifact (Linux)
       if: runner.os == 'Linux'
       uses: actions/upload-artifact@v3
       with:
-        name: linux-binaries
-        path: build-artifacts/ubuntu-latest-binaries.zip
+        name: binaries-ubuntu-latest
+        path: binaries-ubuntu-latest.zip
 
     - name: Upload binaries artifact (Windows)
       if: runner.os == 'Windows'
       uses: actions/upload-artifact@v3
       with:
-        name: windows-binaries
-        path: build-artifacts/windows-latest-binaries.zip
-
+        name: binaries-windows-latest
+        path: binaries-windows-latest.zip
 
   release:
     needs: build
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Download artifacts
+    - name: Download full release artifacts (Linux)
       uses: actions/download-artifact@v3
       with:
-        name: ubuntu-latest-binaries
-        path: ./binaries/linux
-    - uses: actions/download-artifact@v3
+        name: full-release-ubuntu-latest
+        path: ./full-release/linux
+
+    - name: Download full release artifacts (Windows)
+      uses: actions/download-artifact@v3
       with:
-        name: windows-latest-binaries
+        name: full-release-windows-latest
+        path: ./full-release/windows
+
+    - name: Download binaries artifacts (Linux)
+      uses: actions/download-artifact@v3
+      with:
+        name: binaries-ubuntu-latest
+        path: ./binaries/linux
+
+    - name: Download binaries artifacts (Windows)
+      uses: actions/download-artifact@v3
+      with:
+        name: binaries-windows-latest
         path: ./binaries/windows
-
-    - name: Install GitHub CLI
-      uses: actions4gh/setup-gh@v1.0.2
-
-    - name: Generate Release Tag
-      id: generate_tag
-      run: |
-          # Generate a unique tag using the current date and time
-          TAG="v$(date +'%Y%m%d%H%M%S')"
-          echo "TAG=$TAG" >> $GITHUB_ENV
 
     - name: Create Release using GitHub CLI
       run: |
-          gh release create $TAG ./full-release/${{ matrix.os }}-full-release.zip
+          gh release create $TAG ./full-release/linux/full-release-ubuntu-latest.zip ./full-release/windows/full-release-windows-latest.zip
       env:
           GH_REPO: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ env.TAG }}
 
     - name: Upload Linux Binaries
-      if: runner.os == 'Linux'
       run: |
-          gh release upload $TAG ./build-artifacts/${{ matrix.os }}-binaries.zip
+          gh release upload $TAG ./binaries/linux/binaries-ubuntu-latest.zip
       env:
           GH_REPO: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ env.TAG }}
 
     - name: Upload Windows Binaries
-      if: runner.os == 'Windows'
       run: |
-          gh release upload $TAG ./build-artifacts/${{ matrix.os }}-binaries.zip
+          gh release upload $TAG ./binaries/windows/binaries-windows-latest.zip
       env:
           GH_REPO: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
